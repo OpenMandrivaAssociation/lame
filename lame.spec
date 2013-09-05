@@ -1,9 +1,9 @@
-%define major		0
+%define major	0
 %define libname	%mklibname %{name} %{major}
-%define develname	%mklibname -d %{name}
-%define staticname	%mklibname -d -s %{name}
+%define devname	%mklibname -d %{name}
+%define static	%mklibname -d -s %{name}
 
-%define expopt 1
+%bcond_without	expopt
 
 Name:		lame
 Version:	3.99.5
@@ -47,39 +47,24 @@ encoder) requires a patent license in some countries.
 
 This package is in restricted, as MP3 encoding is covered by software patents.
 
-%package -n %{libname}
+%package -n	%{libname}
 Summary:	Main library for lame
 Group:		System/Libraries
-Provides:	lib%{name} = %EVRD
 
-%description -n %{libname}
+%description -n	%{libname}
 This package contains the library needed to run programs dynamically
 linked with libmp3lame.
 
 This package is in restricted, as MP3 encoding is covered by software patents.
 
-%package -n %{develname}
+%package -n	%{devname}
 Summary:	Headers for developing programs that will use libmp3lame
 Group:		Development/C
-Requires:	%{libname} = %EVRD
-Provides:	%{name}-devel = %EVRD
-Provides:	lib%{name}-devel = %EVRD
+Requires:	%{libname} = %{EVRD}
+Provides:	%{name}-devel = %{EVRD}
 
-%description -n %{develname}
+%description -n %{devname}
 This package contains the headers that programmers will need to develop
-applications which will use libmp3lame.
-
-This package is in restricted, as MP3 encoding is covered by software patents.
-
-%package -n %{staticname}
-Summary:	Static library for developing programs based on libmp3lame
-Group:		Development/C
-Requires:	%{develname} = %EVRD
-Provides:	%{name}-static-devel = %EVRD
-Provides:	lib%{name}-static-devel = %EVRD
-
-%description -n %{staticname}
-This package contains the static library programmers will need to develop
 applications which will use libmp3lame.
 
 This package is in restricted, as MP3 encoding is covered by software patents.
@@ -93,20 +78,15 @@ rm -rf html/CVS html/Makefile*
 find html -name .cvsignore|xargs %__rm -f
 
 %build
-%if !%{expopt}
-export CFLAGS="`echo %{optflags} |sed s/-O[23]/-O1/`"
-%endif
-
-export GTK_CONFIG=%{_bindir}/gtk-config
-
 %configure2_5x \
 %ifarch %{ix86}
 	--enable-nasm \
 %endif
-%if %{expopt}
-	--enable-expopt \
+%if %{with expopt}
+	--enable-expopt=full \
 %endif
-	--without-vorbis --enable-brhist
+	--enable-dynamic-frontends \
+	--disable-gtktest
 
 %make LIBS=-lm
 
@@ -125,13 +105,9 @@ rm -rf %{buildroot}%{_datadir}/doc/lame
 %{_mandir}/man1/lame.1*
 
 %files -n %{libname}
-%doc README
-%{_libdir}/*.so.%{major}*
+%{_libdir}/libmp3lame.so.%{major}*
 
-%files -n %{develname}
+%files -n %{devname}
 %doc STYLEGUIDE API ChangeLog
 %{_includedir}/*
 %{_libdir}/libmp3lame.so
-
-%files -n %{staticname}
-%{_libdir}/libmp3lame.a
