@@ -1,13 +1,13 @@
 %define major		0
 %define libname	%mklibname %{name} %{major}
 %define develname	%mklibname -d %{name}
-%define staticname	%mklibname -d -s %{name}
+# %define staticname	%mklibname -d -s %{name}
 
 %define expopt 1
 
 Name:		lame
 Version:	3.99.5
-Release:	1
+Release:	2
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
@@ -71,18 +71,18 @@ applications which will use libmp3lame.
 
 This package is in restricted, as MP3 encoding is covered by software patents.
 
-%package -n %{staticname}
-Summary:	Static library for developing programs based on libmp3lame
-Group:		Development/C
-Requires:	%{develname} = %EVRD
-Provides:	%{name}-static-devel = %EVRD
-Provides:	lib%{name}-static-devel = %EVRD
+# %package -n %{staticname}
+#Summary:	Static library for developing programs based on libmp3lame
+#Group:		Development/C
+#Requires:	%{develname} = %EVRD
+#Provides:	%{name}-static-devel = %EVRD
+#Provides:	lib%{name}-static-devel = %EVRD
 
-%description -n %{staticname}
-This package contains the static library programmers will need to develop
-applications which will use libmp3lame.
+# %description -n %{staticname}
+# This package contains the static library programmers will need to develop
+# applications which will use libmp3lame.
 
-This package is in restricted, as MP3 encoding is covered by software patents.
+# This package is in restricted, as MP3 encoding is covered by software patents.
 
 %prep
 %setup -q
@@ -133,5 +133,5 @@ rm -rf %{buildroot}%{_datadir}/doc/lame
 %{_includedir}/*
 %{_libdir}/libmp3lame.so
 
-%files -n %{staticname}
-%{_libdir}/libmp3lame.a
+# %files -n %{staticname}
+# %{_libdir}/libmp3lame.a
