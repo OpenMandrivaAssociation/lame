@@ -78,6 +78,7 @@ rm -rf html/CVS html/Makefile*
 find html -name .cvsignore|xargs %__rm -f
 
 %build
+%global	optflags %{optflags} -Ofast
 %configure2_5x \
 %ifarch %{ix86}
 	--enable-nasm \
