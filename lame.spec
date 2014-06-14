@@ -7,7 +7,7 @@
 
 Name:		lame
 Version:	3.99.5
-Release:	1
+Release:	2
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
@@ -86,6 +86,7 @@ find html -name .cvsignore|xargs %__rm -f
 	--enable-expopt=full \
 %endif
 	--enable-dynamic-frontends \
+	--enable-mp3rtp \
 	--disable-gtktest
 
 %make LIBS=-lm
