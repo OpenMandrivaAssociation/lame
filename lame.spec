@@ -7,7 +7,7 @@
 
 Name:		lame
 Version:	3.99.5
-Release:	2
+Release:	4
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
@@ -104,6 +104,7 @@ rm -rf %{buildroot}%{_datadir}/doc/lame
 %files
 %doc README TODO USAGE html/
 %{_bindir}/lame
+%{_bindir}/mp3rtp
 %{_mandir}/man1/lame.1*
 
 %files -n %{libname}
