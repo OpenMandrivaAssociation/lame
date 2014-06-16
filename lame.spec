@@ -7,14 +7,14 @@
 
 Name:		lame
 Version:	3.99.5
-Release:	4
+Release:	5
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
 URL:		http://lame.sourceforge.net
 Source0:	http://netcologne.dl.sourceforge.net/project/lame/lame/3.99/lame-%version.tar.gz
 BuildRequires:	pkgconfig(ncurses)
-%ifarch %{ix86}
+%ifarch %{ix86} x86_64
 BuildRequires:	nasm
 %endif
 BuildRequires:	pkgconfig(xi)
@@ -80,7 +80,7 @@ find html -name .cvsignore|xargs %__rm -f
 %build
 %global	optflags %{optflags} -Ofast
 %configure2_5x \
-%ifarch %{ix86}
+%ifarch %{ix86} x86_64
 	--enable-nasm \
 %endif
 %if %{with expopt}
