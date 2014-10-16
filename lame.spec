@@ -7,7 +7,7 @@
 
 Name:		lame
 Version:	3.99.5
-Release:	6
+Release:	7
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
