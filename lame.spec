@@ -1,6 +1,6 @@
-%define major		0
-%define libname	%mklibname %{name} %{major}
-%define develname	%mklibname -d %{name}
+%define major 0
+%define libname %mklibname %{name} %{major}
+%define develname %mklibname -d %{name}
 # %define staticname	%mklibname -d -s %{name}
 
 %define expopt 1
@@ -93,13 +93,14 @@ rm -rf html/CVS html/Makefile*
 find html -name .cvsignore|xargs %__rm -f
 
 %build
+%global optflags %{optflags} -Qunused-arguments
 %if !%{expopt}
 export CFLAGS="`echo %{optflags} |sed s/-O[23]/-O1/`"
 %endif
 
 export GTK_CONFIG=%{_bindir}/gtk-config
 
-%configure2_5x \
+%configure \
 %ifarch %{ix86}
 	--enable-nasm \
 %endif
