@@ -1,20 +1,19 @@
-%define major 0
-%define libname %mklibname %{name} %{major}
-%define develname %mklibname -d %{name}
-# %define staticname	%mklibname -d -s %{name}
+%define major	0
+%define libname	%mklibname %{name} %{major}
+%define devname	%mklibname -d %{name}
 
-%define expopt 1
+%bcond_without	expopt
 
 Name:		lame
 Version:	3.99.5
-Release:	7
+Release:	8
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
 URL:		http://lame.sourceforge.net
 Source0:	http://netcologne.dl.sourceforge.net/project/lame/lame/3.99/lame-%version.tar.gz
 BuildRequires:	pkgconfig(ncurses)
-%ifarch %{ix86}
+%ifarch %{ix86} x86_64
 BuildRequires:	nasm
 %endif
 BuildRequires:	pkgconfig(xi)
@@ -47,42 +46,27 @@ encoder) requires a patent license in some countries.
 
 This package is in restricted, as MP3 encoding is covered by software patents.
 
-%package -n %{libname}
+%package -n	%{libname}
 Summary:	Main library for lame
 Group:		System/Libraries
-Provides:	lib%{name} = %EVRD
 
-%description -n %{libname}
+%description -n	%{libname}
 This package contains the library needed to run programs dynamically
 linked with libmp3lame.
 
 This package is in restricted, as MP3 encoding is covered by software patents.
 
-%package -n %{develname}
+%package -n	%{devname}
 Summary:	Headers for developing programs that will use libmp3lame
 Group:		Development/C
-Requires:	%{libname} = %EVRD
-Provides:	%{name}-devel = %EVRD
-Provides:	lib%{name}-devel = %EVRD
+Requires:	%{libname} = %{EVRD}
+Provides:	%{name}-devel = %{EVRD}
 
-%description -n %{develname}
+%description -n %{devname}
 This package contains the headers that programmers will need to develop
 applications which will use libmp3lame.
 
 This package is in restricted, as MP3 encoding is covered by software patents.
-
-# %package -n %{staticname}
-#Summary:	Static library for developing programs based on libmp3lame
-#Group:		Development/C
-#Requires:	%{develname} = %EVRD
-#Provides:	%{name}-static-devel = %EVRD
-#Provides:	lib%{name}-static-devel = %EVRD
-
-# %description -n %{staticname}
-# This package contains the static library programmers will need to develop
-# applications which will use libmp3lame.
-
-# This package is in restricted, as MP3 encoding is covered by software patents.
 
 %prep
 %setup -q
@@ -93,21 +77,17 @@ rm -rf html/CVS html/Makefile*
 find html -name .cvsignore|xargs %__rm -f
 
 %build
-%global optflags %{optflags} -Qunused-arguments
-%if !%{expopt}
-export CFLAGS="`echo %{optflags} |sed s/-O[23]/-O1/`"
-%endif
-
-export GTK_CONFIG=%{_bindir}/gtk-config
-
+%global	optflags %{optflags} -Ofast
 %configure \
-%ifarch %{ix86}
+%ifarch %{ix86} x86_64
 	--enable-nasm \
 %endif
-%if %{expopt}
-	--enable-expopt \
+%if %{with expopt}
+	--enable-expopt=full \
 %endif
-	--without-vorbis --enable-brhist
+	--enable-dynamic-frontends \
+	--enable-mp3rtp \
+	--disable-gtktest
 
 %make LIBS=-lm
 
@@ -123,16 +103,13 @@ rm -rf %{buildroot}%{_datadir}/doc/lame
 %files
 %doc README TODO USAGE html/
 %{_bindir}/lame
+%{_bindir}/mp3rtp
 %{_mandir}/man1/lame.1*
 
 %files -n %{libname}
-%doc README
-%{_libdir}/*.so.%{major}*
+%{_libdir}/libmp3lame.so.%{major}*
 
-%files -n %{develname}
+%files -n %{devname}
 %doc STYLEGUIDE API ChangeLog
 %{_includedir}/*
 %{_libdir}/libmp3lame.so
-
-# %files -n %{staticname}
-# %{_libdir}/libmp3lame.a
