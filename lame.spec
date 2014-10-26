@@ -2,6 +2,7 @@
 %define libname	%mklibname %{name} %{major}
 %define devname	%mklibname -d %{name}
 
+%define	__cc	gcc
 %bcond_without	expopt
 
 Name:		lame
