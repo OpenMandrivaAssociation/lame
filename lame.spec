@@ -5,12 +5,15 @@
 
 Name:		lame
 Version:	3.99.5
-Release:	9
+Release:	10
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
 URL:		http://lame.sourceforge.net
 Source0:	http://netcologne.dl.sourceforge.net/project/lame/lame/3.99/lame-%version.tar.gz
+Patch0:		configure-3.98.4-gcc4.9.0-i386.patch
+Patch1:		lame-3.99.5-invalid-sample-rate.patch
+Patch2:		lame-3.99.5-bits-per-sample.patch
 BuildRequires:	pkgconfig(ncurses)
 %ifarch %{ix86} x86_64
 BuildRequires:	nasm
@@ -69,6 +72,11 @@ This package is in restricted, as MP3 encoding is covered by software patents.
 
 %prep
 %setup -q
+%ifarch %ix86
+%patch0 -p0
+%endif
+%patch1 -p1
+%patch2 -p1
 ln -s acm ACM
 cp -r doc/html .
 #clean unneeded files in doc dir
