@@ -3,9 +3,14 @@
 %define devname %mklibname -d %{name}
 %bcond_without	expopt
 
+%global	optflags %{optflags} -Ofast
+%ifarch %{ix86}
+%define _disable_lto 1
+%endif
+
 Name:		lame
 Version:	3.99.5
-Release:	11
+Release:	12
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
@@ -43,11 +48,6 @@ requires the ability to use a C compiler. However, many popular ripping
 and encoding programs include the LAME encoding engine, see: Software 
 which uses LAME.
 
-Personal and commercial use of compiled versions of LAME (or any other mp3 
-encoder) requires a patent license in some countries.
-
-This package is in restricted, as MP3 encoding is covered by software patents.
-
 %package -n	%{libname}
 Summary:	Main library for lame
 Group:		System/Libraries
@@ -55,8 +55,6 @@ Group:		System/Libraries
 %description -n	%{libname}
 This package contains the library needed to run programs dynamically
 linked with libmp3lame.
-
-This package is in restricted, as MP3 encoding is covered by software patents.
 
 %package -n	%{devname}
 Summary:	Headers for developing programs that will use libmp3lame
@@ -67,8 +65,6 @@ Provides:	%{name}-devel = %{EVRD}
 %description -n %{devname}
 This package contains the headers that programmers will need to develop
 applications which will use libmp3lame.
-
-This package is in restricted, as MP3 encoding is covered by software patents.
 
 %prep
 %setup -q
@@ -87,7 +83,6 @@ find html -name .cvsignore|xargs rm -f
 export CC=gcc
 export CXX=g++
 
-%global	optflags %{optflags} -Ofast
 %configure \
 %ifarch %{ix86} x86_64
 	--enable-nasm \
