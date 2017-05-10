@@ -1,13 +1,11 @@
-%define major	0
-%define libname	%mklibname %{name} %{major}
-%define devname	%mklibname -d %{name}
-
-%define	__cc	gcc
+%define major 0
+%define libname %mklibname %{name} %{major}
+%define devname %mklibname -d %{name}
 %bcond_without	expopt
 
 Name:		lame
 Version:	3.99.5
-Release:	10
+Release:	11
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
@@ -83,9 +81,12 @@ ln -s acm ACM
 cp -r doc/html .
 #clean unneeded files in doc dir
 rm -rf html/CVS html/Makefile*
-find html -name .cvsignore|xargs %__rm -f
+find html -name .cvsignore|xargs rm -f
 
 %build
+export CC=gcc
+export CXX=g++
+
 %global	optflags %{optflags} -Ofast
 %configure \
 %ifarch %{ix86} x86_64
