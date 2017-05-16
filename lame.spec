@@ -15,10 +15,19 @@ Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
 URL:		http://lame.sourceforge.net
+# (tpg) https://github.com/rbrito/lame.git
 Source0:	http://netcologne.dl.sourceforge.net/project/lame/lame/3.99/lame-%version.tar.gz
 Patch0:		configure-3.98.4-gcc4.9.0-i386.patch
-Patch1:		lame-3.99.5-invalid-sample-rate.patch
-Patch2:		lame-3.99.5-bits-per-sample.patch
+# (tpg) patches from debian
+Patch3:		07-field-width-fix.patch
+Patch4:		parallel-builds-fix.patch
+Patch5:		ansi2knr2devnull.patch
+Patch6:		privacy-breach.patch
+Patch7:		msse.patch
+Patch8:		force_align_arg_pointer.patch
+Patch9:		0001-Add-check-for-invalid-input-sample-rate.patch
+Patch10:	bits_per_sample.patch
+Patch11:	int_resample_ratio.patch
 BuildRequires:	pkgconfig(ncurses)
 %ifarch %{ix86} x86_64
 BuildRequires:	nasm
@@ -71,8 +80,16 @@ applications which will use libmp3lame.
 %ifarch %ix86
 %patch0 -p0
 %endif
-%patch1 -p1
-%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+
 ln -s acm ACM
 cp -r doc/html .
 #clean unneeded files in doc dir
