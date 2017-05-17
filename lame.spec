@@ -6,6 +6,7 @@
 %global	optflags %{optflags} -Ofast
 %ifarch %{ix86}
 %define _disable_lto 1
+%global ldflags %{ldflags} -fuse-ld=bfd
 %endif
 
 Name:		lame
