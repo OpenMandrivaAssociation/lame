@@ -5,7 +5,6 @@
 
 %global	optflags %{optflags} -Ofast
 %ifarch %{ix86}
-%define _disable_lto 1
 %global ldflags %{ldflags} -fuse-ld=bfd
 %endif
 
@@ -29,10 +28,13 @@ Patch8:		force_align_arg_pointer.patch
 Patch9:		0001-Add-check-for-invalid-input-sample-rate.patch
 Patch10:	bits_per_sample.patch
 Patch11:	int_resample_ratio.patch
+# Let's give it a performance boost...
+Patch12:	http://tmkk.undo.jp/lame/lame-3.99.5-sse-20120229-2.diff
 BuildRequires:	pkgconfig(ncurses)
 %ifarch %{ix86} x86_64
 BuildRequires:	nasm
 %endif
+BuildRequires:	libtool
 BuildRequires:	pkgconfig(xi)
 BuildRequires:	pkgconfig(xext)
 BuildRequires:	pkgconfig(x11)
@@ -98,8 +100,9 @@ rm -rf html/CVS html/Makefile*
 find html -name .cvsignore|xargs rm -f
 
 %build
-export CC=gcc
-export CXX=g++
+%ifarch %{ix86}
+export LD=%{_bindir}/ld.bfd
+%endif
 
 %configure \
 %ifarch %{ix86} x86_64
@@ -111,6 +114,10 @@ export CXX=g++
 	--enable-dynamic-frontends \
 	--enable-mp3rtp \
 	--disable-gtktest
+
+# The bundled libtool is extremely broken...
+rm libtool
+cp -f /usr/bin/libtool .
 
 %make LIBS=-lm
 
