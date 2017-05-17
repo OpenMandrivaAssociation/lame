@@ -14,7 +14,7 @@ Signed-off-by: Maks Naumov <maksqwe1@ukr.net>
      }
  #endif
  
-+    if (gfp->samplerate_in < 0) {
++    if (gfp->samplerate_in < 0 || gfp->num_channels < 0) {
 +        freegfc(gfc);
 +        gfp->internal_flags = NULL;
 +        return -1;
