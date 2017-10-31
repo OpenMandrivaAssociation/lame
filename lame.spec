@@ -10,20 +10,19 @@
 
 Name:		lame
 Version:	3.100
-Release:	1
+Release:	1.1
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
 URL:		http://lame.sourceforge.net
 # (tpg) https://github.com/rbrito/lame.git
 Source0:	http://netcologne.dl.sourceforge.net/project/lame/lame/3.99/lame-%version.tar.gz
-Patch0:		configure-3.98.4-gcc4.9.0-i386.patch
 # (tpg) patches from debian
 Patch3:		07-field-width-fix.patch
 Patch6:		privacy-breach.patch
 Patch7:		msse.patch
 # Let's give it a performance boost...
-Patch12:	http://tmkk.undo.jp/lame/lame-3.99.5-sse-20120229-2.diff
+Patch12:	http://tmkk.undo.jp/lame/lame-3.100-sse-20171014.diff
 BuildRequires:	pkgconfig(ncurses)
 %ifarch %{ix86} x86_64
 BuildRequires:	nasm
@@ -74,12 +73,7 @@ applications which will use libmp3lame.
 
 %prep
 %setup -q
-%ifarch %ix86
-%patch0 -p0
-%endif
-%patch3 -p1
-%patch6 -p1
-%patch7 -p1
+%apply_patches
 
 ln -s acm ACM
 cp -r doc/html .
