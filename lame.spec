@@ -9,8 +9,8 @@
 %endif
 
 Name:		lame
-Version:	3.99.5
-Release:	12
+Version:	3.100
+Release:	1
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
@@ -20,14 +20,8 @@ Source0:	http://netcologne.dl.sourceforge.net/project/lame/lame/3.99/lame-%versi
 Patch0:		configure-3.98.4-gcc4.9.0-i386.patch
 # (tpg) patches from debian
 Patch3:		07-field-width-fix.patch
-Patch4:		parallel-builds-fix.patch
-Patch5:		ansi2knr2devnull.patch
 Patch6:		privacy-breach.patch
 Patch7:		msse.patch
-Patch8:		force_align_arg_pointer.patch
-Patch9:		0001-Add-check-for-invalid-input-sample-rate.patch
-Patch10:	bits_per_sample.patch
-Patch11:	int_resample_ratio.patch
 # Let's give it a performance boost...
 Patch12:	http://tmkk.undo.jp/lame/lame-3.99.5-sse-20120229-2.diff
 BuildRequires:	pkgconfig(ncurses)
@@ -43,21 +37,21 @@ BuildRequires:	pkgconfig(xdmcp)
 BuildRequires:	pkgconfig(xcb)
 
 %description
-Following the great history of GNU naming, LAME originally stood for LAME 
-Ain't an Mp3 Encoder. LAME started life as a GPL'd patch against the 
-dist10 ISO demonstration source, and thus was incapable of producing an 
-mp3 stream or even being compiled by itself. But in May 2000, the last 
-remnants of the ISO source code were replaced, and now LAME is the source 
-code for a fully GPL'd MP3 encoder, with speed and quality to rival all 
+Following the great history of GNU naming, LAME originally stood for LAME
+Ain't an Mp3 Encoder. LAME started life as a GPL'd patch against the
+dist10 ISO demonstration source, and thus was incapable of producing an
+mp3 stream or even being compiled by itself. But in May 2000, the last
+remnants of the ISO source code were replaced, and now LAME is the source
+code for a fully GPL'd MP3 encoder, with speed and quality to rival all
 commercial competitors.
 
-LAME is an educational tool to be used for learning about MP3 encoding.  
-The goal of the LAME project is to use the open source model to improve 
+LAME is an educational tool to be used for learning about MP3 encoding.
+The goal of the LAME project is to use the open source model to improve
 the psycho acoustics, noise shaping and speed of MP3.
 
-LAME is not for everyone - it is distributed as source code only and 
-requires the ability to use a C compiler. However, many popular ripping 
-and encoding programs include the LAME encoding engine, see: Software 
+LAME is not for everyone - it is distributed as source code only and
+requires the ability to use a C compiler. However, many popular ripping
+and encoding programs include the LAME encoding engine, see: Software
 which uses LAME.
 
 %package -n	%{libname}
@@ -84,14 +78,8 @@ applications which will use libmp3lame.
 %patch0 -p0
 %endif
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
 
 ln -s acm ACM
 cp -r doc/html .
