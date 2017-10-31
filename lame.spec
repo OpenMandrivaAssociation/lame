@@ -84,6 +84,8 @@ find html -name .cvsignore|xargs rm -f
 %build
 %ifarch %{ix86}
 export LD=%{_bindir}/ld.bfd
+export CC=gcc
+export CXX=g++
 %endif
 
 %configure \
