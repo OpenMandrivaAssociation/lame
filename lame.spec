@@ -16,7 +16,7 @@ License:	LGPL
 Group:		Sound
 URL:		http://lame.sourceforge.net
 # (tpg) https://github.com/rbrito/lame.git
-Source0:	http://netcologne.dl.sourceforge.net/project/lame/lame/3.99/lame-%version.tar.gz
+Source0:	https://downloads.sourceforge.net/project/lame/lame/%{version}/lame-%{version}.tar.gz
 # (tpg) patches from debian
 Patch3:		07-field-width-fix.patch
 Patch6:		privacy-breach.patch
