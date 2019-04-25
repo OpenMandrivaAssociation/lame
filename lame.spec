@@ -1,16 +1,16 @@
 %define major 0
 %define libname %mklibname %{name} %{major}
 %define devname %mklibname -d %{name}
-%bcond_without	expopt
+%bcond_without expopt
 
-%global	optflags %{optflags} -Ofast
+%global optflags %{optflags} -O3
 %ifarch %{ix86}
 %global ldflags %{ldflags} -fuse-ld=bfd
 %endif
 
 Name:		lame
 Version:	3.100
-Release:	2
+Release:	3
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
@@ -24,7 +24,7 @@ Patch7:		msse.patch
 # Let's give it a performance boost...
 Patch12:	http://tmkk.undo.jp/lame/lame-3.100-sse-20171014.diff
 BuildRequires:	pkgconfig(ncurses)
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} %{x86_64}
 BuildRequires:	nasm
 %endif
 BuildRequires:	libtool
@@ -72,8 +72,7 @@ This package contains the headers that programmers will need to develop
 applications which will use libmp3lame.
 
 %prep
-%setup -q
-%apply_patches
+%autosetup -p1
 
 ln -s acm ACM
 cp -r doc/html .
@@ -87,7 +86,7 @@ export LD=%{_bindir}/ld.bfd
 %endif
 
 %configure \
-%ifarch %{ix86} x86_64
+%ifarch %{ix86} %{x86_64}
 	--enable-nasm \
 %endif
 %if %{with expopt}
@@ -101,14 +100,14 @@ export LD=%{_bindir}/ld.bfd
 rm libtool
 cp -f /usr/bin/libtool .
 
-%make LIBS=-lm
+%make_build LIBS=-lm
 
 %check
 %make test
 
 %install
 mkdir -p %{buildroot}%{_bindir}
-%makeinstall BINDIR=%{buildroot}%{_bindir}
+%make_install BINDIR=%{buildroot}%{_bindir}
 #clean unpackaged files
 rm -rf %{buildroot}%{_datadir}/doc/lame
 
