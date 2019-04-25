@@ -8,6 +8,13 @@
 %global ldflags %{ldflags} -fuse-ld=bfd
 %endif
 
+# (tpg) enable PGO build
+%ifnarch riscv64
+%bcond_without pgo
+%else
+%bcond_with pgo
+%endif
+
 Name:		lame
 Version:	3.100
 Release:	3
@@ -34,6 +41,7 @@ BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(xau)
 BuildRequires:	pkgconfig(xdmcp)
 BuildRequires:	pkgconfig(xcb)
+BuildRequires:	pkgconfig(gtk+-2.0)
 
 %description
 Following the great history of GNU naming, LAME originally stood for LAME
@@ -79,11 +87,21 @@ cp -r doc/html .
 #clean unneeded files in doc dir
 rm -rf html/CVS html/Makefile*
 find html -name .cvsignore|xargs rm -f
+sed -i -e 's/^\(\s*hardcode_libdir_flag_spec\s*=\).*/\1/' configure
 
 %build
 %ifarch %{ix86}
 export LD=%{_bindir}/ld.bfd
 %endif
+
+%if %{with pgo}
+export LLVM_PROFILE_FILE=%{name}-%p.profile.d
+export LD_LIBRARY_PATH="$(pwd)"
+CFLAGS="%{optflags} -fprofile-instr-generate" \
+CXXFLAGS="%{optflags} -fprofile-instr-generate" \
+FFLAGS="$CFLAGS" \
+FCFLAGS="$CFLAGS" \
+LDFLAGS="%{ldflags} -fprofile-instr-generate" \
 
 %configure \
 %ifarch %{ix86} %{x86_64}
@@ -97,13 +115,42 @@ export LD=%{_bindir}/ld.bfd
 	--disable-gtktest
 
 # The bundled libtool is extremely broken...
-rm libtool
+rm -f libtool
+cp -f /usr/bin/libtool .
+
+%make_build LIBS=-lm
+
+make test
+
+unset LD_LIBRARY_PATH
+unset LLVM_PROFILE_FILE
+llvm-profdata merge --output=%{name}.profile *.profile.d
+
+make clean
+
+CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+%endif
+%configure \
+%ifarch %{ix86} %{x86_64}
+	--enable-nasm \
+%endif
+%if %{with expopt}
+	--enable-expopt=full \
+%endif
+	--enable-dynamic-frontends \
+	--enable-mp3rtp \
+	--disable-gtktest
+
+# The bundled libtool is extremely broken...
+rm -f libtool
 cp -f /usr/bin/libtool .
 
 %make_build LIBS=-lm
 
 %check
-%make test
+make test
 
 %install
 mkdir -p %{buildroot}%{_bindir}
