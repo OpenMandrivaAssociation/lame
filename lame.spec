@@ -1,6 +1,7 @@
 %define major 0
 %define libname %mklibname %{name} %{major}
 %define devname %mklibname -d %{name}
+%define _disable_lto 1
 %bcond_without expopt
 
 %global optflags %{optflags} -O3
@@ -17,7 +18,7 @@
 
 Name:		lame
 Version:	3.100
-Release:	3
+Release:	4
 Summary:	LAME Ain't an MP3 Encoder
 License:	LGPL
 Group:		Sound
@@ -90,6 +91,8 @@ find html -name .cvsignore|xargs rm -f
 sed -i -e 's/^\(\s*hardcode_libdir_flag_spec\s*=\).*/\1/' configure
 
 %build
+export CC=/usr/bin/gcc
+export CXX=/usr/bin/g++
 %ifarch %{ix86}
 export LD=%{_bindir}/ld.bfd
 %endif
@@ -97,12 +100,14 @@ export LD=%{_bindir}/ld.bfd
 %if %{with pgo}
 export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
-CFLAGS="%{optflags} -fprofile-instr-generate" \
-CXXFLAGS="%{optflags} -fprofile-instr-generate" \
+#CFLAGS="%{optflags} -fprofile-instr-generate" \
+#CXXFLAGS="%{optflags} -fprofile-instr-generate" \
+#CFLAGS="%{optflags} -fprofile-generate" \
+#CXXFLAGS="%{optflags} -fprofile-generate" \
 FFLAGS="$CFLAGS" \
 FCFLAGS="$CFLAGS" \
-LDFLAGS="%{ldflags} -fprofile-instr-generate" \
-
+#LDFLAGS="%{ldflags} -fprofile-instr-generate" \
+LDFLAGS="%{ldflags} -fprofile-generate" \
 %configure \
 %ifarch %{ix86} %{x86_64}
 	--enable-nasm \
@@ -128,9 +133,9 @@ llvm-profdata merge --output=%{name}.profile *.profile.d
 
 make clean
 
-CFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-CXXFLAGS="%{optflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
-LDFLAGS="%{ldflags} -fprofile-instr-use=$(realpath %{name}.profile)" \
+CFLAGS="%{optflags} -fprofile-use=$(realpath %{name}.profile)" \
+CXXFLAGS="%{optflags} -fprofile-use=$(realpath %{name}.profile)" \
+LDFLAGS="%{ldflags} -fprofile-use=$(realpath %{name}.profile)" \
 %endif
 %configure \
 %ifarch %{ix86} %{x86_64}
