@@ -10,16 +10,13 @@
 %endif
 
 # (tpg) enable PGO build
-%ifnarch riscv64
 %bcond_without pgo
-%else
-%bcond_with pgo
-%endif
 
+
+Summary:	LAME Ain't an MP3 Encoder
 Name:		lame
 Version:	3.100
-Release:	4
-Summary:	LAME Ain't an MP3 Encoder
+Release:	5
 License:	LGPL
 Group:		Sound
 URL:		http://lame.sourceforge.net
@@ -62,15 +59,15 @@ requires the ability to use a C compiler. However, many popular ripping
 and encoding programs include the LAME encoding engine, see: Software
 which uses LAME.
 
-%package -n	%{libname}
+%package -n %{libname}
 Summary:	Main library for lame
 Group:		System/Libraries
 
-%description -n	%{libname}
+%description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with libmp3lame.
 
-%package -n	%{devname}
+%package -n %{devname}
 Summary:	Headers for developing programs that will use libmp3lame
 Group:		Development/C
 Requires:	%{libname} = %{EVRD}
@@ -91,23 +88,19 @@ find html -name .cvsignore|xargs rm -f
 sed -i -e 's/^\(\s*hardcode_libdir_flag_spec\s*=\).*/\1/' configure
 
 %build
-export CC=/usr/bin/gcc
-export CXX=/usr/bin/g++
+export CC=gcc
+export CXX=g++
 %ifarch %{ix86}
 export LD=%{_bindir}/ld.bfd
 %endif
 
 %if %{with pgo}
-export LLVM_PROFILE_FILE=%{name}-%p.profile.d
 export LD_LIBRARY_PATH="$(pwd)"
-#CFLAGS="%{optflags} -fprofile-instr-generate" \
-#CXXFLAGS="%{optflags} -fprofile-instr-generate" \
-#CFLAGS="%{optflags} -fprofile-generate" \
-#CXXFLAGS="%{optflags} -fprofile-generate" \
+CFLAGS="%{optflags} -fprofile-generate" \
+CXXFLAGS="%{optflags} -fprofile-generate" \
 FFLAGS="$CFLAGS" \
 FCFLAGS="$CFLAGS" \
-#LDFLAGS="%{ldflags} -fprofile-instr-generate" \
-LDFLAGS="%{ldflags} -fprofile-generate" \
+LDFLAGS="%{build_ldflags} -fprofile-generate" \
 %configure \
 %ifarch %{ix86} %{x86_64}
 	--enable-nasm \
@@ -128,14 +121,15 @@ cp -f /usr/bin/libtool .
 make test
 
 unset LD_LIBRARY_PATH
-unset LLVM_PROFILE_FILE
-llvm-profdata merge --output=%{name}.profile *.profile.d
+llvm-profdata merge --output=%{name}-llvm.profdata $(find . -name "*.profraw" -type f)
+PROFDATA="$(realpath %{name}-llvm.profdata)"
+rm -f *.profraw
 
 make clean
 
-CFLAGS="%{optflags} -fprofile-use=$(realpath %{name}.profile)" \
-CXXFLAGS="%{optflags} -fprofile-use=$(realpath %{name}.profile)" \
-LDFLAGS="%{ldflags} -fprofile-use=$(realpath %{name}.profile)" \
+CFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
+CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
+LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 %endif
 %configure \
 %ifarch %{ix86} %{x86_64}
@@ -167,7 +161,7 @@ rm -rf %{buildroot}%{_datadir}/doc/lame
 %doc README TODO USAGE html/
 %{_bindir}/lame
 %{_bindir}/mp3rtp
-%{_mandir}/man1/lame.1*
+%doc %{_mandir}/man1/lame.1*
 
 %files -n %{libname}
 %{_libdir}/libmp3lame.so.%{major}*
