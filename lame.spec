@@ -16,7 +16,7 @@
 Summary:	LAME Ain't an MP3 Encoder
 Name:		lame
 Version:	3.100
-Release:	5
+Release:	6
 License:	LGPL
 Group:		Sound
 URL:		http://lame.sourceforge.net
