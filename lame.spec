@@ -19,7 +19,7 @@ Version:	3.100
 Release:	6
 License:	LGPL
 Group:		Sound
-URL:		http://lame.sourceforge.net
+URL:		https://lame.sourceforge.net
 # (tpg) https://github.com/rbrito/lame.git
 Source0:	https://downloads.sourceforge.net/project/lame/lame/%{version}/lame-%{version}.tar.gz
 # (tpg) patches from debian
