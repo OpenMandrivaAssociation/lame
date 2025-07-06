@@ -1,8 +1,11 @@
-%define major 0
-%define libname %mklibname %{name} %{major}
-%define devname %mklibname -d %{name}
-%define _disable_lto 1
-%bcond_without expopt
+%define		major 0
+%define		libname %mklibname %{name} %{major}
+%define		devname %mklibname -d %{name}
+
+%global		_disable_lto 1
+#global		_disable_ld_no_undefined	1
+
+%bcond_without	expopt
 
 %global optflags %{optflags} -O3
 %ifarch %{ix86}
@@ -12,34 +15,34 @@
 # (tpg) enable PGO build
 %bcond_without pgo
 
-
-Summary:	LAME Ain't an MP3 Encoder
+Summary:		LAME Ain't an MP3 Encoder
 Name:		lame
-Version:	3.100
-Release:	6
-License:	LGPL
+Version:		3.100
+Release:		7
+License:		LGPLv2
 Group:		Sound
-URL:		https://lame.sourceforge.net
-# (tpg) https://github.com/rbrito/lame.git
-Source0:	https://downloads.sourceforge.net/project/lame/lame/%{version}/lame-%{version}.tar.gz
+Url:		https://lame.sourceforge.net
+# (tpg) https://github.com/rbrito/lame.git - Archived
+Source0:	https://downloads.sourceforge.net/project/lame/lame/%{version}/%{name}-%{version}.tar.gz
 # (tpg) patches from debian
 Patch3:		07-field-width-fix.patch
 Patch6:		privacy-breach.patch
 Patch7:		msse.patch
+Patch8:		pkg-config.patch
 # Let's give it a performance boost...
 Patch12:	http://tmkk.undo.jp/lame/lame-3.100-sse-20171014.diff
-BuildRequires:	pkgconfig(ncurses)
+BuildRequires:		libtool
 %ifarch %{ix86} %{x86_64}
-BuildRequires:	nasm
+BuildRequires:		nasm
 %endif
-BuildRequires:	libtool
-BuildRequires:	pkgconfig(xi)
-BuildRequires:	pkgconfig(xext)
-BuildRequires:	pkgconfig(x11)
-BuildRequires:	pkgconfig(xau)
-BuildRequires:	pkgconfig(xdmcp)
-BuildRequires:	pkgconfig(xcb)
-BuildRequires:	pkgconfig(gtk+-2.0)
+BuildRequires:		pkgconfig(gtk+-2.0)
+BuildRequires:		pkgconfig(ncurses)
+BuildRequires:		pkgconfig(x11)
+BuildRequires:		pkgconfig(xau)
+BuildRequires:		pkgconfig(xcb)
+BuildRequires:		pkgconfig(xdmcp)
+BuildRequires:		pkgconfig(xext)
+BuildRequires:		pkgconfig(xi)
 
 %description
 Following the great history of GNU naming, LAME originally stood for LAME
@@ -59,6 +62,14 @@ requires the ability to use a C compiler. However, many popular ripping
 and encoding programs include the LAME encoding engine, see: Software
 which uses LAME.
 
+%files
+%doc README TODO USAGE html/
+%{_bindir}/%{name}
+%{_bindir}/mp3rtp
+%doc %{_mandir}/man1/%{name}.1*
+
+#-----------------------------------------------------------------------------
+
 %package -n %{libname}
 Summary:	Main library for lame
 Group:		System/Libraries
@@ -66,6 +77,11 @@ Group:		System/Libraries
 %description -n %{libname}
 This package contains the library needed to run programs dynamically
 linked with libmp3lame.
+
+%files -n %{libname}
+%{_libdir}/libmp3lame.so.%{major}*
+
+#-----------------------------------------------------------------------------
 
 %package -n %{devname}
 Summary:	Headers for developing programs that will use libmp3lame
@@ -77,24 +93,41 @@ Provides:	%{name}-devel = %{EVRD}
 This package contains the headers that programmers will need to develop
 applications which will use libmp3lame.
 
+%files -n %{devname}
+%doc STYLEGUIDE API ChangeLog
+%{_includedir}/%{name}/%{name}.h
+%{_libdir}/libmp3lame.so
+%{_libdir}/pkgconfig/%{name}.pc
+
+#-----------------------------------------------------------------------------
+
 %prep
 %autosetup -p1
 
 ln -s acm ACM
+
 cp -r doc/html .
-#clean unneeded files in doc dir
+# Clean unneeded files in doc dir
 rm -rf html/CVS html/Makefile*
 find html -name .cvsignore|xargs rm -f
-sed -i -e 's/^\(\s*hardcode_libdir_flag_spec\s*=\).*/\1/' configure
+find html -name "*.2~"|xargs rm -f
+
+# Fix non UTF-8 rpmlint warning
+iconv -f iso8859-1 -t utf-8 ChangeLog > ChangeLog.conv && mv -f ChangeLog.conv ChangeLog
+
 
 %build
+autoreconf -vfi
+sed -i -e 's/^\(\s*hardcode_libdir_flag_spec\s*=\).*/\1/' configure
 export CC=gcc
 export CXX=g++
 %ifarch %{ix86}
 export LD=%{_bindir}/ld.bfd
 %endif
 
-%if %{with pgo}
+# There is no %%bcond_without pgo defined
+#if %%{with pgo}
+%if 0
 export LD_LIBRARY_PATH="$(pwd)"
 CFLAGS="%{optflags} -fprofile-generate" \
 CXXFLAGS="%{optflags} -fprofile-generate" \
@@ -131,6 +164,8 @@ CFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
 CXXFLAGS="%{optflags} -fprofile-use=$PROFDATA" \
 LDFLAGS="%{build_ldflags} -fprofile-use=$PROFDATA" \
 %endif
+CFLAGS="%{optflags} -fPIE" \
+LDFLAGS="%{build_ldflags} -lgcov -pie" \
 %configure \
 %ifarch %{ix86} %{x86_64}
 	--enable-nasm \
@@ -148,25 +183,14 @@ cp -f /usr/bin/libtool .
 
 %make_build LIBS=-lm
 
+
 %check
 make test
+
 
 %install
 mkdir -p %{buildroot}%{_bindir}
 %make_install BINDIR=%{buildroot}%{_bindir}
-#clean unpackaged files
-rm -rf %{buildroot}%{_datadir}/doc/lame
 
-%files
-%doc README TODO USAGE html/
-%{_bindir}/lame
-%{_bindir}/mp3rtp
-%doc %{_mandir}/man1/lame.1*
-
-%files -n %{libname}
-%{_libdir}/libmp3lame.so.%{major}*
-
-%files -n %{devname}
-%doc STYLEGUIDE API ChangeLog
-%{_includedir}/*
-%{_libdir}/libmp3lame.so
+# Clean unpackaged files
+rm -rf %{buildroot}%{_datadir}/doc/%{name}
