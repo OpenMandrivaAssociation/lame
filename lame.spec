@@ -112,9 +112,6 @@ rm -rf html/CVS html/Makefile*
 find html -name .cvsignore|xargs rm -f
 find html -name "*.2~"|xargs rm -f
 
-# Fix non UTF-8 rpmlint warning
-iconv -f iso8859-1 -t utf-8 ChangeLog > ChangeLog.conv && mv -f ChangeLog.conv ChangeLog
-
 
 %build
 autoreconf -vfi
