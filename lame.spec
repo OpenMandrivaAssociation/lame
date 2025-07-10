@@ -3,6 +3,7 @@
 %define		devname %mklibname -d %{name}
 
 %global		_disable_lto 1
+%global		_disable_ld_no_undefined 1
 
 %global optflags %{optflags} -O3
 %ifarch %{ix86}
@@ -12,7 +13,6 @@
 # (tpg) enable PGO build
 %bcond_without	pgo
 %bcond_without	expopt
-
 
 Summary:		LAME Ain't an MP3 Encoder
 Name:		lame
@@ -34,7 +34,9 @@ BuildRequires:		libtool
 %ifarch %{ix86} %{x86_64}
 BuildRequires:		nasm
 %endif
+BuildRequires:		gettext-devel
 BuildRequires:		pkgconfig(gtk+-2.0)
+BuildRequires:		pkgconfig(libmpg123)
 BuildRequires:		pkgconfig(ncurses)
 BuildRequires:		pkgconfig(x11)
 BuildRequires:		pkgconfig(xau)
@@ -113,7 +115,7 @@ find html -name "*.2~"|xargs rm -f
 
 
 %build
-# Needed for P7
+# Needed for P8
 autoreconf -vfi
 sed -i -e 's/^\(\s*hardcode_libdir_flag_spec\s*=\).*/\1/' configure
 export CC=gcc
@@ -122,7 +124,6 @@ export CXX=g++
 export LD=%{_bindir}/ld.bfd
 %endif
 
-# There is no %%bcond_without pgo defined
 %if %{with pgo}
 export LD_LIBRARY_PATH="$(pwd)"
 CFLAGS="%{optflags} -fprofile-generate" \
